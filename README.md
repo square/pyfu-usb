@@ -41,6 +41,12 @@ To run pre-commit hooks (style, linting):
 make pre_commit
 ```
 
+To run unit tests:
+
+```bash
+make test
+```
+
 To build the wheel:
 
 ```bash

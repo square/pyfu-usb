@@ -21,6 +21,10 @@ clean:
 pre_commit: | $(VENV_DIR)
 	@export PATH=$(VENV_DIR)/bin:$$PATH; $(VENV_PYTHON) -m pre_commit run --all-files
 
+.PHONY: test
+test: | $(VENV_DIR)
+	$(VENV_PYTHON) setup.py test
+
 .PHONY: wheel
 wheel: | $(VENV_DIR)
 	$(VENV_PYTHON) setup.py bdist_wheel
