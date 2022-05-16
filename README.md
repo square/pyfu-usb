@@ -24,5 +24,5 @@ In the short-term, we will address these three limitations. In the long-term, it
 Criteria for the package name choice (`pfu-util`) were:
 
 - Be unique from `dfu-util`, in case a user has both installed.
-- `pydfu` already taken on [PyPi](https://pypi.org/project/pydfu/) and `py-dfu` would be too similar.
+- [`pydfu`](https://pypi.org/project/pydfu/) already taken on PyPi and `py-dfu` would be too similar.
 - `py-dfu-util` felt too verbose. 
