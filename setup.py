@@ -20,4 +20,10 @@ setuptools.setup(
             "wheel~=0.37.1",
         ]
     },
+    entry_points={
+        "console_scripts": [
+            "pfu-util=pfu_util.__main__:main"
+
+        ],
+    },
 )
