@@ -10,13 +10,19 @@ provided by ST supports DFU. The bootloader will support DFU over USB if the
 microcontroller itself supports USB.
 
 This example is a blinky program for the Nucleo-144 board and the STM32F207
-chip. The program blinks LD2 (blue LED) at 1 Hz.
+chip. The program blinks `LD2` (blue LED) at 1 Hz.
 
 To enter DFU on any STM32 device, the `BOOT0` pin must be pulled high during
-reset. On the Nucleo-144 board specifically, short CN11.7 to one of VDD pins
+reset [1]. On the Nucleo-144 board specifically, short CN11.7 to one of VDD pins
 (e.g. "3V3" on CN8) and then power cycle the board. The device should
 enumerate over USB in DFU mode.
 
-The process of entering DFU and the commands in the Makefile should be the same
-for any STM32 part, but the prebuilt binary in this directory is just for the
-STM32F207 and Nucleo-144.
+The process of entering DFU and the commands in the Makefile should be roughly
+the same for any STM32 part, but the prebuilt binary in this directory is just
+for the STM32F207 and Nucleo-144.
+
+### Footnotes
+
+1. Note that `BOOT1` must also be pulled low, but this is typically the default
+   state. See [this video](https://www.youtube.com/watch?v=ZUXuk2zFHfs) for
+   more details.
