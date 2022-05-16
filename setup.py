@@ -21,9 +21,6 @@ setuptools.setup(
         ]
     },
     entry_points={
-        "console_scripts": [
-            "pfu-util=pfu_util.__main__:main"
-
-        ],
+        "console_scripts": ["pfu-util=pfu_util.__main__:main"],
     },
 )

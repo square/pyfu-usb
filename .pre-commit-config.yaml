@@ -11,20 +11,20 @@ repos:
     hooks:
       - id: black
         name: black
-        entry: .venv/bin/black pfu_util/ tests/
+        entry: .venv/bin/black pfu_util/ tests/ setup.py
         language: system
         args: ["--check"]
         pass_filenames: false
         always_run: true
       - id: pylint
         name: pylint
-        entry: .venv/bin/pylint pfu_util/ tests/
+        entry: .venv/bin/pylint pfu_util/ tests/ setup.py
         language: system
         pass_filenames: false
         always_run: true
       - id: isort
         name: isort
-        entry: .venv/bin/isort pfu_util/ tests/
+        entry: .venv/bin/isort pfu_util/ tests/ setup.py
         language: system
         pass_filenames: false
         always_run: true
