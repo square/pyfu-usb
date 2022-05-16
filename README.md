@@ -19,10 +19,44 @@ In the short-term, we will address these three limitations. In the long-term, it
 1. Even though the package may appear "pure Python", by relying on `pyusb` we rely on `libusb` being installed. See the [`pyusb` docs](https://github.com/pyusb/pyusb#requirements-and-platform-support) for more details on platform support.
 2. There is a package on PyPi called [`stm32tool`](https://pypi.org/project/stm32tool/) which bundles the _OpenMV_ `pydfu.py` and a script called `dfu.py` that converts `.bin` and `.hex` files to `.dfu` files. However like _OpenMV_, this package is also STM32 specific.
 
+## Developer Guide
+
+The `Makefile` contains workflow helpers for the development environment. The only prerequisite is that `pyenv` is installed.
+
+To setup the virtual environment:
+
+```bash
+make setup
+```
+
+To activate the virtual environment:
+
+```bash
+source .venv/bin/activate
+```
+
+To run pre-commit hooks (style, linting):
+
+```bash
+make pre_commit
+```
+
+To build the wheel:
+
+```bash
+make wheel
+```
+
+To delete all generated files:
+
+```bash
+make clean
+```
+
 ## Name Choice
 
 Criteria for the package name choice (`pfu-util`) were:
 
 - Be unique from `dfu-util`, in case a user has both installed.
 - [`pydfu`](https://pypi.org/project/pydfu/) already taken on PyPi and `py-dfu` would be too similar.
-- `py-dfu-util` felt too verbose. 
+- `py-dfu-util` felt too verbose.

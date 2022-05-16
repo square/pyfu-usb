@@ -1,0 +1,9 @@
+[tool.black]
+line-length = 80
+
+[tool.pylint.FORMAT]
+max-line-length = 80
+
+[tool.isort]
+# make it compatible with black
+profile = "black"
