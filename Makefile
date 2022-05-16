@@ -13,10 +13,6 @@ $(VENV_DIR):
 .PHONY: setup
 setup: | $(VENV_DIR)
 
-.PHONY: clean
-clean:
-	@rm -rf $(VENV_DIR) *.egg-info/ dist/ build/
-
 .PHONY: pre_commit
 pre_commit: | $(VENV_DIR)
 	@export PATH=$(VENV_DIR)/bin:$$PATH; $(VENV_PYTHON) -m pre_commit run --all-files
@@ -28,3 +24,7 @@ test: | $(VENV_DIR)
 .PHONY: wheel
 wheel: | $(VENV_DIR)
 	$(VENV_PYTHON) setup.py bdist_wheel
+
+.PHONY: clean
+clean:
+	@rm -rf $(VENV_DIR) *.egg-info/ dist/ build/
