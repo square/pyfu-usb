@@ -63,7 +63,7 @@ def parse_memory_layout(mem_layout_str: str):
         size = num_pages * page_size
         last_addr = addr + size - 1
         result.append(
-            named(
+            _named(
                 (addr, last_addr, size, num_pages, page_size),
                 "addr last_addr size num_pages page_size",
             )
