@@ -6,7 +6,7 @@ import os
 import pkg_resources
 import sys
 
-from . import list_devices, mass_erase, download
+from . import list_devices, DeviceFirmwareUpdater
 
 logger = logging.getLogger(__name__)
 
@@ -24,17 +24,10 @@ def main():
         required=False,
     )
     parser.add_argument(
-        "-d",
-        "--device",
-        dest="device",
-        help="Specify vendor and product ID of DFU device as <vid>:<pid>",
-        required=False,
-    )
-    parser.add_argument(
         "-a",
         "--address",
         dest="address",
-        help="Specify device address in hex for binary download or mass erase",
+        help="Specify device address in hex for binary download",
         required=False,
     )
     parser.add_argument(
@@ -52,6 +45,13 @@ def main():
         help="List available DFU devices",
         action="store_true",
         default=False,
+    )
+    parser.add_argument(
+        "-d",
+        "--device",
+        dest="device",
+        help="Specify DFU device in hex as <vid>:<pid>",
+        required=False,
     )
     parser.add_argument(
         "-V",
@@ -72,31 +72,51 @@ def main():
 
     args = parser.parse_args()
 
+    # Set log level based on verbosity argument
     log_level = logging.DEBUG if args.verbose else logging.INFO
-    logging.basicConfig(level=log_level, stream=sys.stdout, format="%(message)s")
+    logging.basicConfig(
+        level=log_level, stream=sys.stdout, format="%(message)s"
+    )
 
+    # Get pfu-util verion
     if args.version:
         logger.info(pkg_resources.require("pfu_util")[0].version)
         return 0
 
+    # Parse VID/PID if provided
+    if args.device:
+        vidpid = args.device.split(":")
+        if len(vidpid) != 2:
+            logger.error("Invalid device argument, see progam help")
+            return -1
+        else:
+            vid, pid = vidpid
+            vid, pid = int(vid, 16), int(pid, 16)
+            logger.debug("VID = %X, PID = %X", vid, pid)
+    else:
+        vid, pid = None, None
+
     if args.list:
-        list_devices()
+        list_devices(vid=vid, pid=pid)
         return 0
 
     # Convert address from hex-string to integer
     if args.address:
-        args.address = int(args.address, 16)
+        address = int(args.address, 16)
+    else:
+        # If a DFU file is provided get address/vid/pid from it
+        raise NotImplementedError
+
+    dfu_device = DeviceFirmwareUpdater(address, vid=vid, pid=pid)
 
     if args.erase:
-        if args.address is None:
-            logger.error("Device address is required for mass erase.")
+        if not dfu_device.mass_erase():
+            logger.error("Mass erase failed")
             return -1
-        else:
-            mass_erase(args.address)
 
     if args.file:
-        if not download(args.file, args.address, args.erase):
-            logger.error("DFU download failed.")
+        if not dfu_device.download(args.file):
+            logger.error("DFU download failed")
             return -1
 
     return 0

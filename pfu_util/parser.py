@@ -1,5 +1,6 @@
 """Parse data files for DFU."""
 
+import re
 import zlib
 import struct
 import logging
@@ -22,7 +23,7 @@ def _consume(fmt, data, names):
 
 def _cstring(string):
     """Extract a null-terminated string from a byte array."""
-    return string.decode('utf-8').split('\0', 1)[0]
+    return string.decode("utf-8").split("\0", 1)[0]
 
 
 def _compute_crc(data):
@@ -30,13 +31,54 @@ def _compute_crc(data):
     return 0xFFFFFFFF & -zlib.crc32(data) - 1
 
 
-def read_bin_file(filename: str):
+def parse_memory_layout(mem_layout_str: str):
+    """Parse the memory layout for a DFU device.
+
+    Args:
+        mem_layout_str: Memory layout string from `usb.util.get_string`.
+
+    Returns:
+        An array which identifies the memory layout. Each entry of the array
+        will contain a dictionary with the following keys:
+            addr        - Address of this memory segment
+            last_addr   - Last address contained within the memory segment.
+            size        - Size of the segment, in bytes
+            num_pages   - Number of pages in the segment
+            page_size   - Size of each page, in bytes
+    """
+    mem_layout = mem_layout_str.split("/")
+    addr = int(mem_layout[1], 0)
+    segments = mem_layout[2].split(",")
+    seg_re = re.compile(r"(\d+)\*(\d+)(.)(.)")
+    result = []
+    for segment in segments:
+        seg_match = seg_re.match(segment)
+        num_pages = int(seg_match.groups()[0], 10)
+        page_size = int(seg_match.groups()[1], 10)
+        multiplier = seg_match.groups()[2]
+        if multiplier == "K":
+            page_size *= 1024
+        if multiplier == "M":
+            page_size *= 1024 * 1024
+        size = num_pages * page_size
+        last_addr = addr + size - 1
+        result.append(
+            named(
+                (addr, last_addr, size, num_pages, page_size),
+                "addr last_addr size num_pages page_size",
+            )
+        )
+        addr += size
+    return result
+
+
+def parse_bin_file(filename: str):
     """TODO: Implement me, returning the same thing as `read_dfu_file`."""
-    pass
+    raise NotImplementedError
 
 
-def read_dfu_file(filename: str):
-    """Reads a DFU file, and parses the individual elements from the file.
+def parse_dfu_file(filename: str):
+    """Reads a DFU file and parses the individual elements from the file.
 
     Args:
         filename: DFU file.
@@ -64,7 +106,9 @@ def read_dfu_file(filename: str):
     #   B   uint8_t     version     1
     #   I   uint32_t    size        Size of the DFU file (not including suffix)
     #   B   uint8_t     targets     Number of targets
-    dfu_prefix, data = _consume("<5sBIB", data, "signature version size targets")
+    dfu_prefix, data = _consume(
+        "<5sBIB", data, "signature version size targets"
+    )
     logger.info(
         "    %(signature)s v%(version)d, image size: %(size)d, "
         "targets: %(targets)d" % dfu_prefix

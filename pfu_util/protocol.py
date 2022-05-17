@@ -1,220 +1,163 @@
 """TODO: Add different low-level DFU USB commands here."""
 
+import time
+import struct
 import logging
+from typing import Optional
+
 import usb
 
+# USB DFU interface
+__DFU_INTERFACE = 0
+
+# USB request timeout
+__TIMEOUT = 5000
+
+# DFU commands
+__DFU_DETACH = 0
+__DFU_DNLOAD = 1
+__DFU_UPLOAD = 2
+__DFU_GETSTATUS = 3
+__DFU_CLRSTATUS = 4
+__DFU_GETSTATE = 5
+__DFU_ABORT = 6
+
+# DFU status
+__DFU_STATE_APP_IDLE = 0x00
+__DFU_STATE_APP_DETACH = 0x01
+__DFU_STATE_DFU_IDLE = 0x02
+__DFU_STATE_DFU_DOWNLOAD_SYNC = 0x03
+__DFU_STATE_DFU_DOWNLOAD_BUSY = 0x04
+__DFU_STATE_DFU_DOWNLOAD_IDLE = 0x05
+__DFU_STATE_DFU_MANIFEST_SYNC = 0x06
+__DFU_STATE_DFU_MANIFEST = 0x07
+__DFU_STATE_DFU_MANIFEST_WAIT_RESET = 0x08
+__DFU_STATE_DFU_UPLOAD_IDLE = 0x09
+__DFU_STATE_DFU_ERROR = 0x0A
+
+__DFU_STATUS = [
+    "DFU_STATE_APP_IDLE",
+    "DFU_STATE_APP_DETACH",
+    "DFU_STATE_DFU_IDLE",
+    "DFU_STATE_DFU_DOWNLOAD_SYNC",
+    "DFU_STATE_DFU_DOWNLOAD_BUSY",
+    "DFU_STATE_DFU_DOWNLOAD_IDLE",
+    "DFU_STATE_DFU_MANIFEST_SYNC",
+    "DFU_STATE_DFU_MANIFEST",
+    "DFU_STATE_DFU_MANIFEST_WAIT_RESET",
+    "DFU_STATE_DFU_UPLOAD_IDLE",
+    "DFU_STATE_DFU_ERROR",
+]
 
 logger = logging.getLogger(__name__)
 
-def get_dfu_devices():
-    """Returns a list of USB device which are currently in DFU mode.
-    Additional filters (like idProduct and idVendor) can be passed in to
-    refine the search.
+
+def _set_address(dev: usb.core.Device, address: int):
+    """Sets the address for the next operation.
+
+    Args:
+        dev: USB device in DFU mode.
+        address: Device address to jump to when exiting DFU.
     """
+    # Send DNLOAD with first byte=0x21 and page address
+    buf = struct.pack("<BI", 0x21, address)
+    dev.ctrl_transfer(0x21, __DFU_DNLOAD, 0, __DFU_INTERFACE, buf, __TIMEOUT)
 
-    class FilterDFU(object):
-        """Identify devices which are in DFU mode."""
+    # Execute last command
+    if get_status(dev) != __DFU_STATE_DFU_DOWNLOAD_BUSY:
+        raise Exception("DFU: set address failed")
 
-        def __call__(self, device):
-            for cfg in device:
-                for intf in cfg:
-                    return (
-                        intf.bInterfaceClass == 0xFE
-                        and intf.bInterfaceSubClass == 1
-                    )
-
-    return list(usb.core.find(find_all=True, custom_match=FilterDFU()))
+    # Check command state
+    if get_status(dev) != __DFU_STATE_DFU_DOWNLOAD_IDLE:
+        raise Exception("DFU: set address failed")
 
 
-def clr_status():
-    """Clears any error status (perhaps left over from a previous session)."""
-    while (get_status() != __DFU_STATE_DFU_IDLE):
-        __dev.ctrl_transfer(0x21, __DFU_CLRSTATUS, 0, __DFU_INTERFACE, None, __TIMEOUT)
-        time.sleep(0.100)
+def claim_interface(dev: usb.core.Device):
+    usb.util.claim_interface(dev, __DFU_INTERFACE)
 
 
-def get_status():
-    """Get the status of the last operation."""
-    stat = __dev.ctrl_transfer(0xA1, __DFU_GETSTATUS, 0, __DFU_INTERFACE, 6, 20000)
-    logger.debug("DFU Status: ", __DFU_STATUS[stat[4]])
+def release_interface(dev: usb.core.Device):
+    usb.util.dispose_resources(dev)
+
+
+def get_status(dev: usb.core.Device) -> int:
+    """Get the status of the last operation.
+
+    Args:
+        dev: USB device in DFU mode.
+
+    Returns:
+        Status code.
+    """
+    stat = dev.ctrl_transfer(
+        0xA1, __DFU_GETSTATUS, 0, __DFU_INTERFACE, 6, 20000
+    )
+
+    logger.debug("DFU Status: %s", __DFU_STATUS[stat[4]])
     return stat[4]
 
 
-def mass_erase():
-    """Performs a MASS erase (i.e. erases the entire device."""
-    # Send DNLOAD with first byte=0x41
-    __dev.ctrl_transfer(0x21, __DFU_DNLOAD, 0, __DFU_INTERFACE,
-                        "\x41", __TIMEOUT)
+def clear_status(dev: usb.core.Device):
+    """Clears any error status, perhaps left over from a previous session.
 
-    # Execute last command
-    if get_status() != __DFU_STATE_DFU_DOWNLOAD_BUSY:
-        logger.error("DFU: erase failed")
-        raise Exception("DFU: erase failed")
-
-    # Check command state
-    if get_status() != __DFU_STATE_DFU_DOWNLOAD_IDLE:
-        logger.error("DFU: erase failed")
-        raise Exception("DFU: erase failed")
-
-
-def page_erase(addr):
-    """Erases a single page."""
-    logger.debug("Erasing page: 0x%x..." % (addr))
-
-    # Send DNLOAD with first byte=0x41 and page address
-    buf = struct.pack("<BI", 0x41, addr)
-    __dev.ctrl_transfer(0x21, __DFU_DNLOAD, 0, __DFU_INTERFACE, buf, __TIMEOUT)
-
-    # Execute last command
-    if get_status() != __DFU_STATE_DFU_DOWNLOAD_BUSY:
-        logger.error("DFU: erase failed")
-        raise Exception("DFU: erase failed")
-
-    # Check command state
-    if get_status() != __DFU_STATE_DFU_DOWNLOAD_IDLE:
-        logger.error("DFU: erase failed")
-        raise Exception("DFU: erase failed")
-
-
-def set_address(addr):
-    """Sets the address for the next operation."""
-    # Send DNLOAD with first byte=0x21 and page address
-    buf = struct.pack("<BI", 0x21, addr)
-    __dev.ctrl_transfer(0x21, __DFU_DNLOAD, 0, __DFU_INTERFACE, buf, __TIMEOUT)
-
-    # Execute last command
-    if get_status() != __DFU_STATE_DFU_DOWNLOAD_BUSY:
-        logger.error("DFU: set address failed")
-        raise Exception("DFU: set address failed")
-
-    # Check command state
-    if get_status() != __DFU_STATE_DFU_DOWNLOAD_IDLE:
-        logger.error("DFU: set address failed")
-        raise Exception("DFU: set address failed")
-
-
-def write_memory(addr, buf, progress=None, progress_addr=0, progress_size=0):
-    """Writes a buffer into memory. This routine assumes that memory has
-    already been erased.
+    Args:
+        dev: USB device in DFU mode.
     """
+    status = get_status(dev)
+    while (
+        status != __DFU_STATE_DFU_IDLE
+        and status != __DFU_STATE_DFU_DOWNLOAD_IDLE
+    ):
+        dev.ctrl_transfer(
+            0x21, __DFU_CLRSTATUS, 0, __DFU_INTERFACE, None, __TIMEOUT
+        )
 
-    xfer_count = 0
-    xfer_bytes = 0
-    xfer_total = len(buf)
-    xfer_base = addr
-
-    while xfer_bytes < xfer_total:
-        if xfer_count % 512 == 0:
-            logger.debug("Addr 0x%x %dKBs/%dKBs..." % (xfer_base + xfer_bytes,
-                                                       xfer_bytes // 1024,
-                                                       xfer_total // 1024))
-        if progress and xfer_count % 256 == 0:
-            progress(progress_addr, xfer_base + xfer_bytes - progress_addr,
-                     progress_size)
-
-        # Set mem write address
-        set_address(xfer_base+xfer_bytes)
-
-        # Send DNLOAD with fw data
-        chunk = min(64, xfer_total-xfer_bytes)
-        __dev.ctrl_transfer(0x21, __DFU_DNLOAD, 2, __DFU_INTERFACE,
-                            buf[xfer_bytes:xfer_bytes + chunk], __TIMEOUT)
-
-        # Execute last command
-        if get_status() != __DFU_STATE_DFU_DOWNLOAD_BUSY:
-            raise Exception("DFU: write memory failed")
-
-        # Check command state
-        if get_status() != __DFU_STATE_DFU_DOWNLOAD_IDLE:
-            raise Exception("DFU: write memory failed")
-
-        xfer_count += 1
-        xfer_bytes += chunk
+        status = get_status(dev)
+        time.sleep(0.100)
 
 
-def exit_dfu(address: int):
-    """Exit DFU mode, and start running the program."""
+def mass_erase(dev: usb.core.Device) -> bool:
+    """Performs a mass erase.
 
-    # set jump address
-    set_address(address)
+    Args:
+        dev: USB device in DFU mode.
+
+    Returns:
+        True on success, False on failure.
+    """
+    # Send DNLOAD with first byte=0x41
+    dev.ctrl_transfer(0x21, __DFU_DNLOAD, 0, __DFU_INTERFACE, "\x41", __TIMEOUT)
+
+    # Execute last command
+    if get_status(dev) != __DFU_STATE_DFU_DOWNLOAD_BUSY:
+        logger.error("DFU: erase failed")
+        return False
+
+    # Check command state
+    if get_status(dev) != __DFU_STATE_DFU_DOWNLOAD_IDLE:
+        logger.error("DFU: erase failed")
+        return False
+
+    logger.debug("DFU erased succeeded")
+    return True
+
+
+def exit_dfu(dev: usb.core.Device, address: int):
+    """Exit DFU mode and start running the program.
+
+    Args:
+        dev: USB device in DFU mode.
+        address: Device address to jump to when exiting DFU.
+    """
+    # Set jump address
+    _set_address(dev, address)
 
     # Send DNLOAD with 0 length to exit DFU
-    __dev.ctrl_transfer(0x21, __DFU_DNLOAD, 0, __DFU_INTERFACE,
-                        None, __TIMEOUT)
+    dev.ctrl_transfer(0x21, __DFU_DNLOAD, 0, __DFU_INTERFACE, None, __TIMEOUT)
 
     try:
         # Execute last command
-        if get_status() != __DFU_STATE_DFU_MANIFEST:
+        if get_status(dev) != __DFU_STATE_DFU_MANIFEST:
             logger.error("Failed to reset device")
-
-        # Release device
-        usb.util.dispose_resources(__dev)
     except:
         pass
-
-
-def write_page(buf, xfer_offset):
-    """Writes a single page. This routine assumes that memory has already
-    been erased.
-    """
-
-    xfer_base = 0x08000000
-
-    # Set mem write address
-    set_address(xfer_base+xfer_offset)
-
-    # Send DNLOAD with fw data
-    __dev.ctrl_transfer(0x21, __DFU_DNLOAD, 2, __DFU_INTERFACE, buf, __TIMEOUT)
-
-    # Execute last command
-    if get_status() != __DFU_STATE_DFU_DOWNLOAD_BUSY:
-        logger.error("DFU: write memory failed")
-        raise Exception("DFU: write memory failed")
-
-    # Check command state
-    if get_status() != __DFU_STATE_DFU_DOWNLOAD_IDLE:
-        logger.error("DFU: write memory failed")
-        raise Exception("DFU: write memory failed")
-
-    logger.debug("Write: 0x%x " % (xfer_base + xfer_offset))
-
-
-def write_memory(addr, buf, progress=None, progress_addr=0, progress_size=0):
-    """Writes a buffer into memory. This routine assumes that memory has
-    already been erased.
-    """
-
-    xfer_count = 0
-    xfer_bytes = 0
-    xfer_total = len(buf)
-    xfer_base = addr
-
-    while xfer_bytes < xfer_total:
-        if xfer_count % 512 == 0:
-            logger.debug("Addr 0x%x %dKBs/%dKBs..." % (xfer_base + xfer_bytes,
-                                                       xfer_bytes // 1024,
-                                                       xfer_total // 1024))
-        if progress and xfer_count % 256 == 0:
-            progress(progress_addr, xfer_base + xfer_bytes - progress_addr,
-                     progress_size)
-
-        # Set mem write address
-        set_address(xfer_base+xfer_bytes)
-
-        # Send DNLOAD with fw data
-        chunk = min(64, xfer_total-xfer_bytes)
-        __dev.ctrl_transfer(0x21, __DFU_DNLOAD, 2, __DFU_INTERFACE,
-                            buf[xfer_bytes:xfer_bytes + chunk], __TIMEOUT)
-
-        # Execute last command
-        if get_status() != __DFU_STATE_DFU_DOWNLOAD_BUSY:
-            logger.error("DFU: write memory failed")
-            raise Exception("DFU: write memory failed")
-
-        # Check command state
-        if get_status() != __DFU_STATE_DFU_DOWNLOAD_IDLE:
-            logger.error("DFU: write memory failed")
-            raise Exception("DFU: write memory failed")
-
-        xfer_count += 1
-        xfer_bytes += chunk
