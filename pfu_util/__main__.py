@@ -6,7 +6,7 @@ import os
 import pkg_resources
 import sys
 
-from . import list_dfu_devices, mass_erase, write_bin, write_dfu, exit_dfu
+from . import list_devices, mass_erase, download
 
 logger = logging.getLogger(__name__)
 
@@ -77,32 +77,26 @@ def main():
 
     if args.version:
         logger.info(pkg_resources.require("pfu_util")[0].version)
-        return
+        return 0
 
     if args.list:
-        list_dfu_devices()
-        return
+        list_devices()
+        return 0
+
+    # Convert address from hex-string to integer
+    if args.address:
+        args.address = int(args.address, 16)
 
     if args.erase:
         if args.address is None:
             logger.error("Device address is required for mass erase.")
-            return
+            return -1
         else:
-            mass_erase(address)
+            mass_erase(args.address)
 
     if args.file:
-        ext = os.path.splitext(args.file)[1]
-        if ext == ".bin":
-            logger.debug("Writing bin file...")
-            write_bin(int(args.address, 16), args.file, args.erase)
+        if not download(args.file, args.address, args.erase):
+            logger.error("DFU download failed.")
+            return -1
 
-            logger.debug("Exiting DFU...")
-            exit_dfu()
-        elif ext == ".dfu":
-            logger.debug("Writing dfu file...")
-            write_dfu(args.file, args.erase)
-
-            logger.debug("Exiting DFU...")
-            exit_dfu()
-        else:
-            logger.error("File format %s not supported.", ext)
+    return 0
