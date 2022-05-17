@@ -73,16 +73,10 @@ def list_devices(vid: Optional[int] = None, pid: Optional[int] = None):
 
 
 class DeviceFirmwareUpdater:
-    """TODO"""
+    """TODO: Document"""
 
-    def __init__(
-        self,
-        address,
-        vid: Optional[int] = None,
-        pid: Optional[int] = None,
-    ):
+    def __init__(self, vid: Optional[int] = None, pid: Optional[int] = None):
         self._dev = None
-        self._address = address
         self._is_mass_erased = False
 
         devices = _get_dfu_devices(vid=vid, pid=pid)
@@ -103,29 +97,32 @@ class DeviceFirmwareUpdater:
 
     def __del__(self):
         if self._dev:
-            logger.debug("Exiting DFU")
-            protocol.exit_dfu(self._dev, self._address)
-
             logger.debug("Releasing USB interface")
             protocol.release_interface(self._dev)
 
     def mass_erase(self):
-        """Erase memory space for the device."""
+        """Erase the entire memory space of the device."""
         if self._is_mass_erased:
             logger.info("Device already erased, nothing to do")
         else:
+            logger.info("Performing mass erase, this may take some time...")
             protocol.mass_erase(self._dev)
             self._is_mass_erased = True
 
-    def download(self, filename: str):
+    def download(self, filename: str, base_address: Optional[int] = None):
         # Parse binary file
         ext = os.path.splitext(filename)[1]
         if ext == ".bin":
-            memory_elements = parser.parse_bin_file(filename, self._address)
+            assert base_address is not None, "Must specify address for bin file"
+            mem_elements = parser.parse_bin_file(filename, base_address)
         elif ext == ".dfu":
-            memory_elements = parser.parse_dfu_file(filename)
+            mem_elements = parser.parse_dfu_file(filename)
         else:
             raise NotImplementedError(f"File format {ext} not supported.")
 
         # TODO
         raise NotImplementedError
+
+        # Exit DFU on success
+        logger.debug("Exiting DFU")
+        protocol.exit_dfu(self._dev, base_address)

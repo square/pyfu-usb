@@ -94,25 +94,25 @@ def main():
             vid, pid = int(vid, 16), int(pid, 16)
             logger.debug("VID = %X, PID = %X", vid, pid)
     else:
+        # TODO: If DFU file is provided, should be able to get VID/PID from it
         vid, pid = None, None
 
     if args.list:
+        logger.debug("Listing DFU devices")
         list_devices(vid=vid, pid=pid)
         return 0
 
-    # Convert address from hex-string to integer
-    if args.address:
-        address = int(args.address, 16)
-    else:
-        # If a DFU file is provided get address/vid/pid from it
-        raise NotImplementedError
+    if not args.erase and not args.file:
+        logger.error("No action specified, see program help")
+        return -1
 
-    dfu_device = DeviceFirmwareUpdater(address, vid=vid, pid=pid)
+    dfu_device = DeviceFirmwareUpdater(vid=vid, pid=pid)
 
     if args.erase:
         dfu_device.mass_erase()
 
     if args.file:
-        dfu_device.download(args.file)
+        address = int(args.address, 16) if args.address else None
+        dfu_device.download(args.file, base_address=address)
 
     return 0
