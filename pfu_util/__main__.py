@@ -4,6 +4,7 @@ import argparse
 import logging
 import os
 import pkg_resources
+import sys
 
 from . import list_dfu_devices, mass_erase, write_bin, write_dfu, exit_dfu
 
@@ -72,7 +73,7 @@ def main():
     args = parser.parse_args()
 
     log_level = logging.DEBUG if args.verbose else logging.INFO
-    logging.basicConfig(level=log_level, stream=sys.stdout)
+    logging.basicConfig(level=log_level, stream=sys.stdout, format="%(message)s")
 
     if args.version:
         logger.info(pkg_resources.require("pfu_util")[0].version)
