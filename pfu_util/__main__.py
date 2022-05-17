@@ -70,8 +70,8 @@ def main():
 
     args = parser.parse_args()
 
-    log_level = logging.DEBUG if not args.verbose else logging.INFO
-    logging.basicConfig(level=log_level)
+    log_level = logging.DEBUG if args.verbose else logging.INFO
+    logging.basicConfig(level=log_level, stream=sys.stdout)
 
     if args.version:
         # TODO: Get version from package

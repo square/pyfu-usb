@@ -1,7 +1,10 @@
 """TODO: Add different low-level DFU USB commands here."""
 
+import logging
 import usb
 
+
+logger = logging.getLogger(__name__)
 
 def get_dfu_devices():
     """Returns a list of USB device which are currently in DFU mode.
@@ -33,7 +36,7 @@ def clr_status():
 def get_status():
     """Get the status of the last operation."""
     stat = __dev.ctrl_transfer(0xA1, __DFU_GETSTATUS, 0, __DFU_INTERFACE, 6, 20000)
-    #print ("DFU Status: ", __DFU_STATUS[stat[4]])
+    logger.debug("DFU Status: ", __DFU_STATUS[stat[4]])
     return stat[4]
 
 
@@ -45,17 +48,18 @@ def mass_erase():
 
     # Execute last command
     if get_status() != __DFU_STATE_DFU_DOWNLOAD_BUSY:
+        logger.error("DFU: erase failed")
         raise Exception("DFU: erase failed")
 
     # Check command state
     if get_status() != __DFU_STATE_DFU_DOWNLOAD_IDLE:
+        logger.error("DFU: erase failed")
         raise Exception("DFU: erase failed")
 
 
 def page_erase(addr):
     """Erases a single page."""
-    if __verbose:
-        print("Erasing page: 0x%x..." % (addr))
+    logger.debug("Erasing page: 0x%x..." % (addr))
 
     # Send DNLOAD with first byte=0x41 and page address
     buf = struct.pack("<BI", 0x41, addr)
@@ -63,11 +67,12 @@ def page_erase(addr):
 
     # Execute last command
     if get_status() != __DFU_STATE_DFU_DOWNLOAD_BUSY:
+        logger.error("DFU: erase failed")
         raise Exception("DFU: erase failed")
 
     # Check command state
     if get_status() != __DFU_STATE_DFU_DOWNLOAD_IDLE:
-
+        logger.error("DFU: erase failed")
         raise Exception("DFU: erase failed")
 
 
@@ -79,10 +84,12 @@ def set_address(addr):
 
     # Execute last command
     if get_status() != __DFU_STATE_DFU_DOWNLOAD_BUSY:
+        logger.error("DFU: set address failed")
         raise Exception("DFU: set address failed")
 
     # Check command state
     if get_status() != __DFU_STATE_DFU_DOWNLOAD_IDLE:
+        logger.error("DFU: set address failed")
         raise Exception("DFU: set address failed")
 
 
@@ -97,10 +104,10 @@ def write_memory(addr, buf, progress=None, progress_addr=0, progress_size=0):
     xfer_base = addr
 
     while xfer_bytes < xfer_total:
-        if __verbose and xfer_count % 512 == 0:
-            print ("Addr 0x%x %dKBs/%dKBs..." % (xfer_base + xfer_bytes,
-                                                 xfer_bytes // 1024,
-                                                 xfer_total // 1024))
+        if xfer_count % 512 == 0:
+            logger.debug("Addr 0x%x %dKBs/%dKBs..." % (xfer_base + xfer_bytes,
+                                                       xfer_bytes // 1024,
+                                                       xfer_total // 1024))
         if progress and xfer_count % 256 == 0:
             progress(progress_addr, xfer_base + xfer_bytes - progress_addr,
                      progress_size)

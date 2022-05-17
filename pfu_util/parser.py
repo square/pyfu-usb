@@ -1,5 +1,9 @@
 """Parse data files for DFU."""
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 def named(values, names):
     """Creates a dict with `names` as fields, and `values` as values."""
@@ -39,7 +43,7 @@ def read_dfu_file(filename: str):
             data    - The element data.
         If an error occurs while parsing the file, then None is returned.
     """
-    print("File: {}".format(filename))
+    logger.info("File: {}".format(filename))
     with open(filename, "rb") as fin:
         data = fin.read()
     crc = compute_crc(data[:-4])
@@ -54,7 +58,7 @@ def read_dfu_file(filename: str):
     #   I   uint32_t    size        Size of the DFU file (not including suffix)
     #   B   uint8_t     targets     Number of targets
     dfu_prefix, data = consume("<5sBIB", data, "signature version size targets")
-    print(
+    logger.info(
         "    %(signature)s v%(version)d, image size: %(size)d, "
         "targets: %(targets)d" % dfu_prefix
     )
@@ -79,7 +83,7 @@ def read_dfu_file(filename: str):
             img_prefix["name"] = cstring(img_prefix["name"])
         else:
             img_prefix["name"] = ""
-        print(
+        logger.info(
             "    %(signature)s %(num)d, alt setting: %(altsetting)s, "
             'name: "%(name)s", size: %(size)d, elements: %(elements)d'
             % img_prefix
@@ -94,7 +98,7 @@ def read_dfu_file(filename: str):
             #   I   uint32_t    element size
             elem_prefix, target_data = consume("<2I", target_data, "addr size")
             elem_prefix["num"] = elem_idx
-            print(
+            logger.info(
                 "      %(num)d, address: 0x%(addr)08x, size: %(size)d"
                 % elem_prefix
             )
@@ -105,7 +109,7 @@ def read_dfu_file(filename: str):
             elements.append(elem_prefix)
 
         if len(target_data):
-            print("target %d PARSE ERROR" % target_idx)
+            logger.error("target %d PARSE ERROR" % target_idx)
 
     # Decode DFU Suffix
     #   <   little endian
@@ -120,16 +124,16 @@ def read_dfu_file(filename: str):
         struct.unpack("<4H3sBI", data[:16]),
         "device product vendor dfu ufd len crc",
     )
-    print(
+    logger.info(
         "    usb: %(vendor)04x:%(product)04x, device: 0x%(device)04x, "
         "dfu: 0x%(dfu)04x, %(ufd)s, %(len)d, 0x%(crc)08x" % dfu_suffix
     )
     if crc != dfu_suffix["crc"]:
-        print("CRC ERROR: computed crc32 is 0x%08x" % crc)
+        logger.error("CRC ERROR: computed crc32 is 0x%08x" % crc)
         return
     data = data[16:]
     if data:
-        print("PARSE ERROR")
+        logger.error("PARSE ERROR")
         return
 
     return elements

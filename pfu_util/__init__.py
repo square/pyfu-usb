@@ -23,7 +23,7 @@ def list_dfu_devices():
 
         # TODO: Re-add
         # layout = get_memory_layout(device)
-        # print("Memory Layout")
+        # logger.info("Memory Layout")
         # for entry in layout:
         #     logger.info(
         #         "    0x{:x} {:2d} pages of {:3d}K bytes".format(
@@ -86,14 +86,15 @@ def write_page(buf, xfer_offset):
 
     # Execute last command
     if get_status() != __DFU_STATE_DFU_DOWNLOAD_BUSY:
+        logger.error("DFU: write memory failed")
         raise Exception("DFU: write memory failed")
 
     # Check command state
     if get_status() != __DFU_STATE_DFU_DOWNLOAD_IDLE:
+        logger.error("DFU: write memory failed")
         raise Exception("DFU: write memory failed")
 
-    if __verbose:
-        print ("Write: 0x%x " % (xfer_base + xfer_offset))
+    logger.debug("Write: 0x%x " % (xfer_base + xfer_offset))
 
 
 def write_memory(addr, buf, progress=None, progress_addr=0, progress_size=0):
@@ -107,10 +108,10 @@ def write_memory(addr, buf, progress=None, progress_addr=0, progress_size=0):
     xfer_base = addr
 
     while xfer_bytes < xfer_total:
-        if __verbose and xfer_count % 512 == 0:
-            print ("Addr 0x%x %dKBs/%dKBs..." % (xfer_base + xfer_bytes,
-                                                 xfer_bytes // 1024,
-                                                 xfer_total // 1024))
+        if xfer_count % 512 == 0:
+            logger.debug("Addr 0x%x %dKBs/%dKBs..." % (xfer_base + xfer_bytes,
+                                                       xfer_bytes // 1024,
+                                                       xfer_total // 1024))
         if progress and xfer_count % 256 == 0:
             progress(progress_addr, xfer_base + xfer_bytes - progress_addr,
                      progress_size)
@@ -125,10 +126,12 @@ def write_memory(addr, buf, progress=None, progress_addr=0, progress_size=0):
 
         # Execute last command
         if get_status() != __DFU_STATE_DFU_DOWNLOAD_BUSY:
+            logger.error("DFU: write memory failed")
             raise Exception("DFU: write memory failed")
 
         # Check command state
         if get_status() != __DFU_STATE_DFU_DOWNLOAD_IDLE:
+            logger.error("DFU: write memory failed")
             raise Exception("DFU: write memory failed")
 
         xfer_count += 1
