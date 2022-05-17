@@ -121,7 +121,18 @@ class DeviceFirmwareUpdater:
         # Parse binary file
         ext = os.path.splitext(filename)[1]
         if ext == ".bin":
-            memory_elements = parser.parse_bin_file(filename, self._address)
+            if address is None:
+                    logger.error("Address required for binary file.")
+                    return False
+            else:
+                try:
+                    address = int(address, 0) & 0xFFFFFFFF
+                except ValueError:
+                    logger.error("Address %s invalid." % address)
+                    return False
+
+            memory_elements = parser.parse_bin_file(filename, address)
+        # Parse DFU file
         elif ext == ".dfu":
             memory_elements = parser.parse_dfu_file(filename)
         else:

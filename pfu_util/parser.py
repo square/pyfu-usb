@@ -1,9 +1,10 @@
 """Parse data files for DFU."""
 
-import re
-import zlib
-import struct
 import logging
+import re
+import struct
+import tempfile
+import zlib
 
 logger = logging.getLogger(__name__)
 
@@ -71,10 +72,37 @@ def parse_memory_layout(mem_layout_str: str):
         addr += size
     return result
 
+def parse_bin_file(filename: str, address: str):
+    """Reads a BIN file and parses the individual elements from the file.
 
-def parse_bin_file(filename: str):
-    """TODO: Implement me, returning the same thing as `read_dfu_file`."""
-    raise NotImplementedError
+    Args:
+        filename: BIN file.
+        address: The address that the element data should be written to.
+
+    Returns:
+        An array of elements. Each element is a dictionary with the
+        following keys:
+            num     - The element index
+            address - The address that the element data should be written to.
+            size    - The size of the element data.
+            data    - The element data.
+        If an error occurs while parsing the file, then None is returned.
+    """
+    logger.info('File: "%s"' % filename)
+    try:
+        with open(filename, 'rb') as fin:
+            data = fin.read()
+
+    except OSError:
+        logger.error("PARSE ERROR")
+        return
+
+    elements = []
+    element = {"num": 0, "address": address, "size": len(data), "data": data}
+    elements.append(element)
+
+    return elements
+
 
 
 def parse_dfu_file(filename: str):
@@ -88,7 +116,7 @@ def parse_dfu_file(filename: str):
         following keys:
             num     - The element index
             address - The address that the element data should be written to.
-            size    - The size of the element ddata.
+            size    - The size of the element data.
             data    - The element data.
         If an error occurs while parsing the file, then None is returned.
     """
