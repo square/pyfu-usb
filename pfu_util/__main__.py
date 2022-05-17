@@ -1,8 +1,9 @@
 """Command-line interface (CLI) for pfu-util."""
 
-import os
-import logging
 import argparse
+import logging
+import os
+import pkg_resources
 
 from . import list_dfu_devices, mass_erase, write_bin, write_dfu, exit_dfu
 
@@ -74,8 +75,7 @@ def main():
     logging.basicConfig(level=log_level, stream=sys.stdout)
 
     if args.version:
-        # TODO: Get version from package
-        logger.info("0.1.0")
+        logger.info(pkg_resources.require("pfu_util")[0].version)
         return
 
     if args.list:
