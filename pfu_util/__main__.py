@@ -110,13 +110,9 @@ def main():
     dfu_device = DeviceFirmwareUpdater(address, vid=vid, pid=pid)
 
     if args.erase:
-        if not dfu_device.mass_erase():
-            logger.error("Mass erase failed")
-            return -1
+        dfu_device.mass_erase()
 
     if args.file:
-        if not dfu_device.download(args.file):
-            logger.error("DFU download failed")
-            return -1
+        dfu_device.download(args.file)
 
     return 0

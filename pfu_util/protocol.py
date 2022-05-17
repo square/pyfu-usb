@@ -52,35 +52,7 @@ __DFU_STATUS = [
 logger = logging.getLogger(__name__)
 
 
-def _set_address(dev: usb.core.Device, address: int):
-    """Sets the address for the next operation.
-
-    Args:
-        dev: USB device in DFU mode.
-        address: Device address to jump to when exiting DFU.
-    """
-    # Send DNLOAD with first byte=0x21 and page address
-    buf = struct.pack("<BI", 0x21, address)
-    dev.ctrl_transfer(0x21, __DFU_DNLOAD, 0, __DFU_INTERFACE, buf, __TIMEOUT)
-
-    # Execute last command
-    if get_status(dev) != __DFU_STATE_DFU_DOWNLOAD_BUSY:
-        raise Exception("DFU: set address failed")
-
-    # Check command state
-    if get_status(dev) != __DFU_STATE_DFU_DOWNLOAD_IDLE:
-        raise Exception("DFU: set address failed")
-
-
-def claim_interface(dev: usb.core.Device):
-    usb.util.claim_interface(dev, __DFU_INTERFACE)
-
-
-def release_interface(dev: usb.core.Device):
-    usb.util.dispose_resources(dev)
-
-
-def get_status(dev: usb.core.Device) -> int:
+def _get_status(dev: usb.core.Device) -> int:
     """Get the status of the last operation.
 
     Args:
@@ -88,6 +60,9 @@ def get_status(dev: usb.core.Device) -> int:
 
     Returns:
         Status code.
+
+    Raises:
+        usb.core.USBTimeoutError: USB control transfer timeout.
     """
     stat = dev.ctrl_transfer(
         0xA1, __DFU_GETSTATUS, 0, __DFU_INTERFACE, 6, 20000
@@ -97,13 +72,58 @@ def get_status(dev: usb.core.Device) -> int:
     return stat[4]
 
 
+def _set_address(dev: usb.core.Device, address: int):
+    """Sets the address for the next operation.
+
+    Args:
+        dev: USB device in DFU mode.
+        address: Device address to jump to when exiting DFU.
+
+    Raises:
+        RuntimeError: Address could not be set.
+        usb.core.USBTimeoutError: USB control transfer timeout.
+    """
+    # Send DNLOAD with first byte=0x21 and page address
+    buf = struct.pack("<BI", 0x21, address)
+    dev.ctrl_transfer(0x21, __DFU_DNLOAD, 0, __DFU_INTERFACE, buf, __TIMEOUT)
+
+    # Execute last command
+    if _get_status(dev) != __DFU_STATE_DFU_DOWNLOAD_BUSY:
+        raise RuntimeError("Set address failed")
+
+    # Check command state
+    if _get_status(dev) != __DFU_STATE_DFU_DOWNLOAD_IDLE:
+        raise RuntimeError("Set address failed")
+
+
+def claim_interface(dev: usb.core.Device):
+    """Claim DFU interface for USB device.
+
+    Args:
+        dev: USB device in DFU mode.
+    """
+    usb.util.claim_interface(dev, __DFU_INTERFACE)
+
+
+def release_interface(dev: usb.core.Device):
+    """Release DFU interface for USB device.
+
+    Args:
+        dev: USB device in DFU mode.
+    """
+    usb.util.dispose_resources(dev)
+
+
 def clear_status(dev: usb.core.Device):
     """Clears any error status, perhaps left over from a previous session.
 
     Args:
         dev: USB device in DFU mode.
+
+    Raises:
+        usb.core.USBTimeoutError: USB control transfer timeout.
     """
-    status = get_status(dev)
+    status = _get_status(dev)
     while (
         status != __DFU_STATE_DFU_IDLE
         and status != __DFU_STATE_DFU_DOWNLOAD_IDLE
@@ -112,8 +132,8 @@ def clear_status(dev: usb.core.Device):
             0x21, __DFU_CLRSTATUS, 0, __DFU_INTERFACE, None, __TIMEOUT
         )
 
-        status = get_status(dev)
-        time.sleep(0.100)
+        status = _get_status(dev)
+        time.sleep(0.1)
 
 
 def mass_erase(dev: usb.core.Device) -> bool:
@@ -122,24 +142,22 @@ def mass_erase(dev: usb.core.Device) -> bool:
     Args:
         dev: USB device in DFU mode.
 
-    Returns:
-        True on success, False on failure.
+    Raises:
+        RuntimeError: Mass erase failed.
+        usb.core.USBTimeoutError: USB control transfer timeout.
     """
     # Send DNLOAD with first byte=0x41
     dev.ctrl_transfer(0x21, __DFU_DNLOAD, 0, __DFU_INTERFACE, "\x41", __TIMEOUT)
 
     # Execute last command
-    if get_status(dev) != __DFU_STATE_DFU_DOWNLOAD_BUSY:
-        logger.error("DFU: erase failed")
-        return False
+    if _get_status(dev) != __DFU_STATE_DFU_DOWNLOAD_BUSY:
+        raise RuntimeError("Mass erase failed")
 
     # Check command state
-    if get_status(dev) != __DFU_STATE_DFU_DOWNLOAD_IDLE:
-        logger.error("DFU: erase failed")
-        return False
+    if _get_status(dev) != __DFU_STATE_DFU_DOWNLOAD_IDLE:
+        raise RuntimeError("Mass erase failed")
 
     logger.debug("DFU erased succeeded")
-    return True
 
 
 def exit_dfu(dev: usb.core.Device, address: int):
@@ -148,6 +166,9 @@ def exit_dfu(dev: usb.core.Device, address: int):
     Args:
         dev: USB device in DFU mode.
         address: Device address to jump to when exiting DFU.
+
+    Raises:
+        usb.core.USBTimeoutError: USB control transfer timeout.
     """
     # Set jump address
     _set_address(dev, address)
@@ -157,7 +178,7 @@ def exit_dfu(dev: usb.core.Device, address: int):
 
     try:
         # Execute last command
-        if get_status(dev) != __DFU_STATE_DFU_MANIFEST:
-            logger.error("Failed to reset device")
+        if _get_status(dev) != __DFU_STATE_DFU_MANIFEST:
+            logger.warning("Failed to reset device")
     except:
         pass

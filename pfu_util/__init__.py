@@ -81,6 +81,7 @@ class DeviceFirmwareUpdater:
         vid: Optional[int] = None,
         pid: Optional[int] = None,
     ):
+        self._dev = None
         self._address = address
         self._is_mass_erased = False
 
@@ -101,46 +102,30 @@ class DeviceFirmwareUpdater:
         protocol.clear_status(self._dev)
 
     def __del__(self):
-        logger.debug("Exiting DFU")
-        protocol.exit_dfu(self._dev, self._address)
+        if self._dev:
+            logger.debug("Exiting DFU")
+            protocol.exit_dfu(self._dev, self._address)
 
-        logger.debug("Releasing USB interface")
-        protocol.release_interface(self._dev)
+            logger.debug("Releasing USB interface")
+            protocol.release_interface(self._dev)
 
-    def mass_erase(self) -> bool:
-        """Erase memory space for the device.
-
-        Returns:
-            True on success, False on failure.
-        """
+    def mass_erase(self):
+        """Erase memory space for the device."""
         if self._is_mass_erased:
             logger.info("Device already erased, nothing to do")
-            return True
         else:
-            if protocol.mass_erase(self._dev):
-                self._is_mass_erased = True
-                return True
-            else:
-                return False
+            protocol.mass_erase(self._dev)
+            self._is_mass_erased = True
 
-    def download(
-        self,
-        filename: str,
-        address: Optional[int] = None,
-    ) -> bool:
+    def download(self, filename: str):
         # Parse binary file
         ext = os.path.splitext(filename)[1]
         if ext == ".bin":
-            if address is None:
-                logger.error("Address required for binary file.")
-                return False
-            else:
-                memory_elements = parser.parse_bin_file(filename, address)
+            memory_elements = parser.parse_bin_file(filename, self._address)
         elif ext == ".dfu":
             memory_elements = parser.parse_dfu_file(filename)
         else:
-            logger.error("File format %s not supported.", ext)
-            return False
+            raise NotImplementedError(f"File format {ext} not supported.")
 
         # TODO
         raise NotImplementedError
