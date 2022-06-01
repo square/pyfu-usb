@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_HOME=$DIR/../..
+PRE_COMMIT=$PROJECT_HOME/.venv/bin/pre-commit
+
+case "$TEST_RUNNER" in
+  format)
+    source script/install_pyenv
+    make setup && $PRE_COMMIT run black -v
+    ;;
+  typecheck)
+    source script/install_pyenv
+    make setup && $PRE_COMMIT run mypy -v
+    ;;
+  lint)
+    source script/install_pyenv
+    make setup && $PRE_COMMIT run pylint -v
+    ;;
+  wheel)
+    source script/install_pyenv
+    make wheel 
+    ;;
+  test)
+    source script/install_pyenv
+    make test
+    ;;
+  *)
+    echo "Unsupported test runner: $TEST_RUNNER" >&2
+    exit 1
+esac

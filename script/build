@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -ex -o pipefail
+
+# https://stackoverflow.com/questions/27022373/python3-importerror-no-module-named-ctypes-when-using-value-from-module-mul
+sudo yum install -y libffi-devel
+
+source script/install_pyenv
+make wheel 
+.venv/bin/python script/upload.py
