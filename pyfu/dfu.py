@@ -17,6 +17,11 @@ _DFU_STATE_DFU_ERROR = 0x0A
 _DFU_CMD_DOWNLOAD = 1
 _DFU_CMD_GETSTATUS = 3
 _DFU_CMD_CLRSTATUS = 4
+_DFU_STATE_LEN = 6
+
+# USB request types
+_USB_REQUEST_TYPE_SEND = 0x21
+_USB_REQUEST_TYPE_RECV = 0xA1
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +43,12 @@ def get_state(
         RuntimeError: Device returned error state.
     """
     status = dev.ctrl_transfer(
-        0xA1, _DFU_CMD_GETSTATUS, 0, interface, 6, timeout_ms
+        bmRequestType=_USB_REQUEST_TYPE_RECV,
+        bRequest=_DFU_CMD_GETSTATUS,
+        wValue=0,
+        wIndex=interface,
+        data_or_wLength=_DFU_STATE_LEN,
+        timeout=timeout_ms,
     )
 
     state: int = status[4]
@@ -59,7 +69,14 @@ def clear_status(
         interface: USB device interface.
         timeout_ms: Timeout in milliseconds for USB control transfer.
     """
-    dev.ctrl_transfer(0x21, _DFU_CMD_CLRSTATUS, 0, interface, None, timeout_ms)
+    dev.ctrl_transfer(
+        bmRequestType=_USB_REQUEST_TYPE_SEND,
+        bRequest=_DFU_CMD_CLRSTATUS,
+        wValue=0,
+        wIndex=interface,
+        data_or_wLength=None,
+        timeout=timeout_ms,
+    )
 
 
 def download(
@@ -80,12 +97,12 @@ def download(
     """
     # Send data
     dev.ctrl_transfer(
-        0x21,
-        _DFU_CMD_DOWNLOAD,
-        transaction,
-        interface,
-        data,
-        timeout_ms,
+        bmRequestType=_USB_REQUEST_TYPE_SEND,
+        bRequest=_DFU_CMD_DOWNLOAD,
+        wValue=transaction,
+        wIndex=interface,
+        data_or_wLength=data,
+        timeout=timeout_ms,
     )
 
     # Wait for download to process
