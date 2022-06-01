@@ -44,7 +44,7 @@ def get_state(
     state: int = status[4]
 
     if state == _DFU_STATE_DFU_ERROR:
-        raise RuntimeError("Device error")
+        raise RuntimeError("Target device error")
 
     return state
 

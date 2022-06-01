@@ -66,8 +66,11 @@ def mock_dfu() -> Generator[mock.Mock, None, None]:
 
 def test_download_bad_file() -> None:
     """Test downloading fails if a non-existent binary file is provided."""
-    with pytest.raises(ValueError):
+    with pytest.raises(FileNotFoundError):
         download("banana.bin")
+
+    with pytest.raises(IsADirectoryError):
+        download(".")
 
 
 def test_download_no_devices(

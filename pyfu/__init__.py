@@ -52,7 +52,7 @@ def _get_dfu_devices(
         List of USB devices which are currently in DFU mode.
     """
 
-    class FilterDFU:  # pylint: disable=R0903
+    class FilterDFU:  # pylint: disable=too-few-public-methods
         """Identify devices which are in DFU mode."""
 
         def __call__(self, device: usb.core.Device) -> Optional[bool]:
@@ -230,12 +230,10 @@ def download(
         address: Base address to jump to in memory. This is required for DfuSe.
 
     Raises:
-        ValueError: Invalid filename.
+        ValueError: Could not read DFU device USB descriptor.
+        ValueError: Address not provided for DfuSe device.
         RuntimeError: Could not locate DFU device.
     """
-    if not os.path.exists(filename):
-        raise ValueError("File %s does not exist" % filename)
-
     logger.info("Downloading binary file: %s", filename)
     with open(filename, "rb") as fin:
         data = fin.read()
@@ -246,7 +244,10 @@ def download(
         raise RuntimeError("No devices found in DFU mode")
 
     if len(devices) > 1:
-        raise RuntimeError("Too many devices in DFU mode, specify vid/pid")
+        raise RuntimeError(
+            f"Too many devices in DFU mode ({len(devices)}). List devices for "
+            "more info and specify vid:pid to filter."
+        )
 
     dev = devices[0]
 

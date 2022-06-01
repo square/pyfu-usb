@@ -135,8 +135,14 @@ def cli(args: argparse.Namespace) -> int:
                 pid=pid,
                 address=address,
             )
-    except (RuntimeError, ValueError, usb.core.USBError) as err:
-        logger.error("DFU download failed: %s", err)
+    except (
+        RuntimeError,
+        ValueError,
+        FileNotFoundError,
+        IsADirectoryError,
+        usb.core.USBError,
+    ) as err:
+        logger.error("DFU download failed: %s", repr(err))
         return 1
 
     return 0

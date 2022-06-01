@@ -9,14 +9,16 @@ import usb
 
 logger = logging.getLogger(__name__)
 
+_DFU_DESCRIPTOR_LEN = 9
 _DFU_DESCRIPTOR_ID = 0x21
 
 
-# pylint: disable=C0103
+# pylint: disable=invalid-name
 @dataclasses.dataclass
 class DfuDescriptor:
     """DFU descriptor."""
 
+    # NOTE: Alternate naming convention used to match DFU spec
     bmAttributes: int
     wDetachTimeOut: int
     wTransferSize: int
@@ -47,7 +49,10 @@ def get_dfu_descriptor(dev: usb.core.Device) -> Optional[DfuDescriptor]:
         for intf in cfg:
             # pyusb does not seem to automatically parse DFU descriptors
             dfu_desc = intf.extra_descriptors
-            if len(dfu_desc) == 9 and dfu_desc[1] == _DFU_DESCRIPTOR_ID:
+            if (
+                len(dfu_desc) == _DFU_DESCRIPTOR_LEN
+                and dfu_desc[1] == _DFU_DESCRIPTOR_ID
+            ):
                 desc = DfuDescriptor(
                     bmAttributes=dfu_desc[2],
                     wDetachTimeOut=dfu_desc[4] << 8 | dfu_desc[3],
