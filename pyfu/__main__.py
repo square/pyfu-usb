@@ -71,7 +71,7 @@ def create_parser() -> argparse.ArgumentParser:
         "-i",
         "--interface",
         dest="interface",
-        help="Specify which USB interface to use (defaults to 0)",
+        help="Specify which USB interface to use for downloading (default: 0)",
         required=False,
         default=0,
     )
@@ -122,7 +122,7 @@ def cli(args: argparse.Namespace) -> int:
 
     # List DFU devices
     if args.list:
-        list_devices(interface=args.interface, vid=vid, pid=pid)
+        list_devices(vid=vid, pid=pid)
         return 0
 
     # Download file to DFU device

@@ -64,21 +64,25 @@ def get_dfu_descriptor(dev: usb.core.Device) -> Optional[DfuDescriptor]:
     return None
 
 
+# pylint: disable=too-many-locals
 def get_memory_layout(
-    device: usb.core.Device, interface: int
+    device: usb.core.Device,
+    interface: int,
+    alternate_index: int = 0,
 ) -> List[DfuSeMemoryLayout]:
     """Get the DfuSe memory layout for a USB device.
 
     Args:
         dev: USB device.
         interface: USB device interface.
+        alternate_index: USB device alternate index for interface.
 
     Returns:
         List of `DfuSeMemoryLayout`, one for each "segment" in device memory.
     """
     # Get memory layout string - Assumes cfg 0 is used which is safe since USB
     # devices rarely have more than one configuration.
-    intf = device[0][(interface, 0)]
+    intf = device[0][(interface, alternate_index)]
     try:
         mem_layout_str = usb.util.get_string(device, intf.iInterface).split("/")
     except usb.core.USBError:
@@ -97,12 +101,20 @@ def get_memory_layout(
 
         num_pages = int(seg_match.groups()[0], 10)
         page_size = int(seg_match.groups()[1], 10)
-
         multiplier = seg_match.groups()[2]
+
         if multiplier == "K":
             page_size *= 1024
         if multiplier == "M":
             page_size *= 1024 * 1024
+        if multiplier == " ":
+            page_size *= 1
+
+        # TODO: Figure out the meaning of the final character in the page
+        # description. For STM32F2, flash memory is "g" and for other regions
+        # like OTP, Option Bytes, and Device Feature are "e". This may indicate
+        # access permissions, like read-only ("e") or read-write ("g")?
+        # page_code = seg_match.groups()[3]
 
         size = num_pages * page_size
         last_addr = addr + size - 1

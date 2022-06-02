@@ -19,6 +19,9 @@ from . import descriptor, dfu, dfuse
 logger = logging.getLogger(__name__)
 
 
+_BYTES_PER_KILOBYTE = 1024
+
+
 def _make_progress_bar(progress: Progress, total: int) -> Optional[TaskID]:
     """Create task for rich progress bar, but only if logging level is not
     DEBUG since they would conflict on the output.
@@ -183,9 +186,7 @@ def _dfu_download(
             raise err
 
 
-def list_devices(
-    interface: int = 0, vid: Optional[int] = None, pid: Optional[int] = None
-) -> None:
+def list_devices(vid: Optional[int] = None, pid: Optional[int] = None) -> None:
     """List devices detected in DFU mode. For DfuSe devices, the memory layout
     will be listed as well.
 
@@ -201,15 +202,28 @@ def list_devices(
             )
         )
 
-        bytes_per_kb = 1024
-        for segment in descriptor.get_memory_layout(device, interface):
-            logger.info(
-                "    0x{:x} {:2d} pages of {:3d}K bytes".format(
-                    segment.addr,
-                    segment.num_pages,
-                    segment.page_size // bytes_per_kb,
-                )
-            )
+        for cfg in device:
+            for intf in cfg:
+                for segment in descriptor.get_memory_layout(
+                    device,
+                    intf.bInterfaceNumber,
+                    alternate_index=intf.alternate_index,
+                ):
+                    if segment.page_size > _BYTES_PER_KILOBYTE:
+                        page_size = segment.page_size // _BYTES_PER_KILOBYTE
+                        page_char = "K"
+                    else:
+                        page_size = segment.page_size
+                        page_char = ""
+
+                    logger.info(
+                        "    0x{:x} {:2d} pages of {:3d}{:s} bytes".format(
+                            segment.addr,
+                            segment.num_pages,
+                            page_size,
+                            page_char,
+                        )
+                    )
 
 
 def download(
