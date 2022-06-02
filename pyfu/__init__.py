@@ -190,7 +190,6 @@ def list_devices(vid: Optional[int] = None, pid: Optional[int] = None) -> None:
     will be listed as well.
 
     Args:
-        interface: USB device interface.
         vid: Vendor ID to narrow the search for DFU devices.
         pid: Product ID to narrow the search for DFU devices.
     """
