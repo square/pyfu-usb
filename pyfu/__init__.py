@@ -16,10 +16,9 @@ from rich.progress import Progress, TaskID
 
 from . import descriptor, dfu, dfuse
 
-logger = logging.getLogger(__name__)
-
-
 _BYTES_PER_KILOBYTE = 1024
+
+logger = logging.getLogger(__name__)
 
 
 def _make_progress_bar(progress: Progress, total: int) -> Optional[TaskID]:
