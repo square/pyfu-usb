@@ -48,7 +48,7 @@ def test_device_opt(
     """Test device option works."""
     args = parser.parse_args(["--device", "bbbb:bbbb", "--list"])
     assert cli(args) == 0
-    mock_list_devices.assert_called_with(interface=0, vid=0xBBBB, pid=0xBBBB)
+    mock_list_devices.assert_called_with(vid=0xBBBB, pid=0xBBBB)
 
 
 def test_bad_device_arg(parser: argparse.ArgumentParser) -> None:
