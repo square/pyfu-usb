@@ -93,7 +93,3 @@ To delete generated files:
 ```bash
 make clean
 ```
-
-## Future Improvements
-
-- Add more unit testing: `test_list.py` and `test_descriptor.py`
