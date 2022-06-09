@@ -21,7 +21,7 @@ case "$TEST_RUNNER" in
     ;;
   wheel)
     source script/install_pyenv
-    make wheel 
+    make wheel
     ;;
   test)
     source script/install_pyenv

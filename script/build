@@ -6,5 +6,5 @@ set -ex -o pipefail
 sudo yum install -y libffi-devel
 
 source script/install_pyenv
-make wheel 
+make wheel
 .venv/bin/python script/upload.py

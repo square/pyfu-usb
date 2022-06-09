@@ -57,15 +57,17 @@ def _get_dfu_devices(
     class FilterDFU:  # pylint: disable=too-few-public-methods
         """Identify devices which are in DFU mode."""
 
-        def __call__(self, device: usb.core.Device) -> Optional[bool]:
+        def __call__(self, device: usb.core.Device) -> bool:
             if vid is None or vid == device.idVendor:
                 if pid is None or pid == device.idProduct:
                     for cfg in device:
                         for intf in cfg:
-                            is_class_dfu: bool = intf.bInterfaceClass == 0xFE
-                            is_subclass_dfu: bool = intf.bInterfaceSubClass == 1
-                            return is_class_dfu and is_subclass_dfu
-            return None
+                            if (
+                                intf.bInterfaceClass == 0xFE
+                                and intf.bInterfaceSubClass == 1
+                            ):
+                                return True
+            return False
 
     return list(usb.core.find(find_all=True, custom_match=FilterDFU()))
 
