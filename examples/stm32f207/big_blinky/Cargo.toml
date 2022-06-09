@@ -1,0 +1,10 @@
+[package]
+name = "big-blinky"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+cortex-m = "0.6.0"
+cortex-m-rt = "0.6.10"
+stm32f2 = { version = "0.14.0", features = ["rt", "stm32f217"] }
+panic-halt = { version = "0.2.0" }
