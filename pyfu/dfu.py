@@ -1,3 +1,4 @@
+# Copyright 2022 Block, Inc.
 """Minimal DFU protocol implementation."""
 
 import logging

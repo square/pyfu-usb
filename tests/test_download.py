@@ -1,3 +1,4 @@
+# Copyright 2022 Block, Inc.
 """Test download."""
 # pylint: disable=R0913,W0613,W0621
 

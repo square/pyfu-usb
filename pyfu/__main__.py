@@ -1,3 +1,4 @@
+# Copyright 2022 Block, Inc.
 """Command-line interface (CLI) for pyfu."""
 
 import argparse

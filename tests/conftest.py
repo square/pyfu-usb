@@ -1,3 +1,4 @@
+# Copyright 2022 Block, Inc.
 """Common unit test fixtures."""
 
 from typing import Generator

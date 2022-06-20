@@ -1,3 +1,4 @@
+# Copyright 2022 Block, Inc.
 """Test functions for getting info from USB descriptors of DFU devices."""
 
 from unittest import mock
