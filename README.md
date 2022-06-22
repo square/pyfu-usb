@@ -1,5 +1,7 @@
 # pyfu: Python Firmware Updater
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A small library for firmware updates over USB with devices that support the [DFU](https://www.usb.org/sites/default/files/DFU_1.1.pdf) and [DfuSe](http://dfu-util.sourceforge.net/dfuse.html) protocols. Specifically, `pyfu` supports _listing_ DFU capable devices and _downloading binary files_ to them.
 
 ## Compared to [`dfu-util`](http://dfu-util.sourceforge.net/)
@@ -93,3 +95,11 @@ To delete generated files:
 ```bash
 make clean
 ```
+
+## Contributing
+
+Please see the [documentation](.github/CONTRIBUTING.md) prior to contributing.
+
+## License
+
+Licensed under the [MIT license](LICENSE).

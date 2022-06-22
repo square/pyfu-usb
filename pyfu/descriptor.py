@@ -1,3 +1,4 @@
+# Copyright 2022 Block, Inc.
 """Get DFU related info from USB device descriptors."""
 
 import dataclasses

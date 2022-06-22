@@ -1,3 +1,4 @@
+# Copyright 2022 Block, Inc.
 """Python Firmware Updater (pyfu).
 
 - List connected DFU devices using `list_devices`. If a device implements

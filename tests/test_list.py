@@ -1,3 +1,4 @@
+# Copyright 2022 Block, Inc.
 """Test list."""
 
 from unittest import mock

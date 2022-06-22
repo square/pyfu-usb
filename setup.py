@@ -1,3 +1,4 @@
+# Copyright 2022 Block, Inc.
 """Package configuration."""
 
 import setuptools
