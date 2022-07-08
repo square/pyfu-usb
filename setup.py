@@ -7,10 +7,13 @@ setuptools.setup(
     name="pyfu",
     author="Block, Inc.",
     license="MIT",
-    version="1.0.0",
+    version="1.0.1",
     description="Python device firmware update utility",
     packages=setuptools.find_packages(),
     python_requires=">=3.7",
+    package_data={
+        "pyfu": ["py.typed"],
+    },
     install_requires=[
         "pyusb>=1.0.2",
         "rich>=12.2",
