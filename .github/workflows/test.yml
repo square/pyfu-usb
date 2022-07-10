@@ -1,0 +1,33 @@
+name: Test
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest ]
+        python-version: [ 3.7, 3.8, 3.9 ]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version}}
+      - name: Setup
+        run: make setup
+      - name: Lint
+        run: .venv/bin/pre-commit run pylint -v
+      - name: Style
+        run: .venv/bin/pre-commit run black -v
+      - name: Typing
+        run: .venv/bin/pre-commit run mypy -v
+      - name: Wheel
+        run: make wheel
+      - name: Test
+        run: make test

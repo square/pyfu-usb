@@ -52,7 +52,7 @@ Use the `--device` argument to specify the `vid:pid` of the device in hex if mul
 
 ## Developer Guide
 
-The `Makefile` contains workflow helpers for the development environment. The only prerequisite is that `pyenv` is installed.
+The `Makefile` contains workflow helpers for the development environment.
 
 To setup the virtual environment:
 

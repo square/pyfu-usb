@@ -3,7 +3,6 @@ VENV_PYTHON := $(VENV_DIR)/bin/python
 
 $(VENV_DIR):
 	@echo "Setting up virtual environment and pre-commit hooks..."
-	@pyenv install --skip-existing
 	@python -m venv $@
 	@$(VENV_PYTHON) -m pip install --upgrade --quiet pip
 	@$(VENV_PYTHON) -m pip install --upgrade --quiet --editable ".[dev]"
