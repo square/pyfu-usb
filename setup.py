@@ -23,7 +23,7 @@ setuptools.setup(
             "black~=22.3.0",
             "mypy==0.942",
             "types-setuptools~=57.4.14",
-            "pylint~=2.6.0",
+            "pylint~=2.7.0",
             "pre-commit~=2.18.1",
             "wheel~=0.37.1",
             "twine~=4.0.0",
