@@ -1,14 +1,26 @@
 # Copyright 2022 Block, Inc.
 """Package configuration."""
 
+import os
+
 import setuptools
+
+
+def long_description():
+    """Generate long_description from project README."""
+    cwd = os.path.abspath(os.path.dirname(__file__))
+    readme_path = os.path.join(cwd, "README.md")
+    assert os.path.exists(readme_path), "README.md not found"
+    return open(readme_path, "r").read()
+
 
 setuptools.setup(
     name="pyfu-usb",
     author="Block, Inc.",
     license="MIT",
-    version="1.0.0",
-    description="Python device firmware update utility",
+    version="1.0.1",
+    description="Python USB firmware update library.",
+    long_description=long_description(),
     packages=setuptools.find_packages(),
     python_requires=">=3.7",
     package_data={
