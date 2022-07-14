@@ -24,7 +24,7 @@ repos:
         always_run: true
       - id: pylint
         name: pylint
-        entry: .venv/bin/pylint pyfu_usb/ tests/ setup.py
+        entry: .venv/bin/pylint pyfu_usb/ tests/
         language: system
         pass_filenames: false
         always_run: true
