@@ -1,0 +1,17 @@
+[tool.black]
+line-length = 80
+
+[tool.mypy]
+strict = true
+ignore_missing_imports = true
+
+[tool.pylint.MASTER]
+disable = "W0511"
+
+[tool.pylint.FORMAT]
+max-line-length = 80
+
+[tool.isort]
+# make it compatible with black
+profile = "black"
+line_length = 80

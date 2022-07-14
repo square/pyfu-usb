@@ -1,0 +1,36 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.2.0
+    hooks:
+      - id: check-merge-conflict
+      - id: check-shebang-scripts-are-executable
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+  - repo: local
+    hooks:
+      - id: black
+        name: black
+        entry: .venv/bin/black pyfu_usb/ tests/ setup.py
+        language: system
+        args: ["--check"]
+        pass_filenames: false
+        always_run: true
+      - id: mypy
+        name: mypy
+        entry: .venv/bin/mypy pyfu_usb/ tests/
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: pylint
+        name: pylint
+        entry: .venv/bin/pylint pyfu_usb/ tests/ setup.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: isort
+        name: isort
+        entry: .venv/bin/isort pyfu_usb/ tests/ setup.py
+        language: system
+        pass_filenames: false
+        always_run: true
