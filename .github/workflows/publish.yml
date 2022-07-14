@@ -14,7 +14,11 @@ jobs:
         with:
           python-version: '3.x'
       - name: Build
-        run: make wheel
+        run: |
+          sudo apt-get install pandoc
+          python -m pip install --upgrade pip
+          python -m pip install pypandoc
+          make wheel
       - name: Publish
         uses: pypa/gh-action-pypi-publish@v1.4.2
         with:
