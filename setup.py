@@ -11,14 +11,6 @@ def long_description():
     cwd = os.path.abspath(os.path.dirname(__file__))
     readme_path = os.path.join(cwd, "README.md")
     assert os.path.exists(readme_path), "README.md not found"
-
-    try:
-        import pypandoc
-
-        return pypandoc.convert_file(readme_path, "rst")
-    except (IOError, ImportError):
-        pass
-
     return open(readme_path, "r").read()
 
 
@@ -29,6 +21,7 @@ setuptools.setup(
     version="1.0.1",
     description="Python USB firmware update library.",
     long_description=long_description(),
+    long_description_content_type="text/markdown",
     url="https://github.com/square/pyfu-usb",
     packages=setuptools.find_packages(),
     python_requires=">=3.7",
