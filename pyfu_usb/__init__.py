@@ -138,10 +138,7 @@ def _dfuse_download(
     try:
         dfu.download(dev, interface, 0, None)
     except usb.core.USBError as err:
-        if "Pipe error" in str(err):
-            logger.warning("Ignoring pipe error when reading final status")
-        else:
-            raise err
+        logger.warning("Ignoring USB error when exiting DFU: %s", err)
 
 
 def _dfu_download(
@@ -182,10 +179,7 @@ def _dfu_download(
     try:
         dfu.download(dev, interface, 0, None)
     except usb.core.USBError as err:
-        if "Pipe error" in str(err):
-            logger.warning("Ignoring pipe error when reading final status")
-        else:
-            raise err
+        logger.warning("Ignoring USB error when exiting DFU: %s", err)
 
 
 def list_devices(vid: Optional[int] = None, pid: Optional[int] = None) -> None:
