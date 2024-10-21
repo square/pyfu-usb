@@ -89,9 +89,6 @@ def _dfuse_download(
         xfer_size: Transfer size to use when downloading.
         start_address: Start address of data in device memory.
     """
-    # Clear status, possibly leftover from previous transaction
-    dfu.clear_status(dev, interface)
-
     for segment_num, segment in enumerate(
         descriptor.get_memory_layout(dev, interface)
     ):
@@ -139,6 +136,33 @@ def _dfuse_download(
         dfu.download(dev, interface, 0, None)
     except usb.core.USBError as err:
         logger.warning("Ignoring USB error when exiting DFU: %s", err)
+
+
+def _dfuse_download_with_retry(
+    dev: usb.core.Device,
+    interface: int,
+    data: bytes,
+    xfer_size: int,
+    start_address: int,
+) -> None:
+    """Download data to DfuSe device, with a retry to clear any leftover status.
+
+    Args:
+        dev: USB device in DFU mode.
+        interface: USB device interface.
+        data: Binary data to download.
+        xfer_size: Transfer size to use when downloading.
+        start_address: Start address of data in device memory.
+    """
+    try:
+        _dfuse_download(dev, interface, data, xfer_size, start_address)
+    except usb.core.USBError as err:
+        if "pipe error" in str(err).lower():
+            logger.debug("Clearing status before DfuSe download")
+            dfu.clear_status(dev, interface)
+            _dfuse_download(dev, interface, data, xfer_size, start_address)
+        else:
+            raise err
 
 
 def _dfu_download(
@@ -270,7 +294,7 @@ def download(
         if dfu_desc.bcdDFUVersion == dfuse.DFUSE_VERSION_NUMBER:
             if address is None:
                 raise ValueError("Must provide address for DfuSe")
-            _dfuse_download(
+            _dfuse_download_with_retry(
                 dev, interface, data, dfu_desc.wTransferSize, address
             )
         else:
