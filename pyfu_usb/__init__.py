@@ -105,7 +105,8 @@ def _dfuse_download(
                 dfuse.page_erase(dev, interface, page_addr)
 
     # Download data
-    with Progress() as progress:
+    progress = Progress()
+    with progress:
         task = _make_progress_bar(progress, len(data))
 
         bytes_downloaded = 0
@@ -177,7 +178,8 @@ def _dfu_download(
         xfer_size: Transfer size to use when downloading.
     """
     # Download data
-    with Progress() as progress:
+    progress = Progress()
+    with progress:
         task = _make_progress_bar(progress, len(data))
 
         transaction = 0
