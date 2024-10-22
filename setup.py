@@ -18,7 +18,7 @@ setuptools.setup(
     name="pyfu-usb",
     author="Block, Inc.",
     license="MIT",
-    version="1.0.3",
+    version="2.0.0",
     description="Python USB firmware update library.",
     long_description=long_description(),
     long_description_content_type="text/markdown",
