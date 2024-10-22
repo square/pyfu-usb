@@ -6,7 +6,7 @@ strict = true
 ignore_missing_imports = true
 
 [tool.pylint.MASTER]
-disable = "W0511"
+disable = "W0511,R0917,C0209"
 
 [tool.pylint.FORMAT]
 max-line-length = 80

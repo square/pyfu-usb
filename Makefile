@@ -4,8 +4,8 @@ VENV_PYTHON := $(VENV_DIR)/bin/python
 $(VENV_DIR):
 	@echo "Setting up virtual environment and pre-commit hooks..."
 	@python -m venv $@
-	@$(VENV_PYTHON) -m pip install --upgrade --quiet pip -i https://pypi.python.org/simple
-	@$(VENV_PYTHON) -m pip install --upgrade --quiet --editable ".[dev]" -i https://pypi.python.org/simple
+	@$(VENV_PYTHON) -m pip install --upgrade --quiet pip setuptools
+	@$(VENV_PYTHON) -m pip install --upgrade --quiet --editable ".[dev]"
 	@$(VENV_PYTHON) -m pre_commit install --install-hooks
 	@echo "Setup complete."
 
