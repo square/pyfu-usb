@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2024-10-30
+
+- Add Python 3.8 support back - it did not need to be dropped in version 2.0.0.
+- `importlib.metadata` is available in the standard library for Python 3.8 and
+  higher, so it does not need to be included as a dependency in `setup.py`.
+
 ## [2.0.0] - 2024-10-21
 
 - Drop support for Python 3.7 and 3.8.
