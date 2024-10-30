@@ -4,8 +4,8 @@
 import argparse
 import logging
 import sys
+from importlib.metadata import version
 
-import importlib_metadata
 import usb
 from rich.logging import RichHandler
 
@@ -99,7 +99,7 @@ def cli(args: argparse.Namespace) -> int:
 
     # Get pyfu-usb verion
     if args.version:
-        logger.info(importlib_metadata.version("pyfu_usb"))
+        logger.info(version("pyfu_usb"))
         return 0
 
     # Parse VID/PID if provided
