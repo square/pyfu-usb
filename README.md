@@ -16,7 +16,7 @@ The code in this package originates from `pydfu.py` and the _OpenMV_ license agr
 
 - Colored logs and progress bar with `rich`
 - Using `logging` instead of `print` for output messages
-- Consistent style with `black` and linting with `pylint`
+- Consistent style and linting with `ruff`
 
 ## Dependencies
 
@@ -26,75 +26,45 @@ Even though this package may appear pure Python, by relying on `pyusb` we rely o
 
 Install with `pip`:
 
-```bash
-pip install pyfu-usb
-```
+    pip install pyfu-usb
 
 List connected DFU devices:
 
-```bash
-pyfu-usb --list
-```
+    pyfu-usb --list
 
 Download a file to a DfuSe capable device, specifying a start address in hex:
 
-```bash
-pyfu-usb --download <filename> -a <start_address>
-```
+    pyfu-usb --download <filename> -a <start_address>
 
 Download a file to a DFU capable device:
 
-```bash
-pyfu-usb --download <filename>
-```
+    pyfu-usb --download <filename>
 
 Use the `--device` argument to specify the `vid:pid` of the device in hex if multiple are connected. See the [examples](examples/) directory for more detailed examples.
 
 ## Developer Guide
 
-The `Makefile` contains workflow helpers for the development environment.
+This project uses [`uv`](https://docs.astral.sh/uv/) for Python tooling. It also uses [`just`](https://github.com/casey/just) to simplify running project specific specific commands.
 
-To setup the virtual environment:
+To install pre-commit hooks (e.g. style, linting):
 
-```bash
-make setup
-```
+    just setup
 
-To activate the virtual environment:
+To run pre-commit hooks:
 
-```bash
-source .venv/bin/activate
-```
-
-To run pre-commit hooks (style, linting):
-
-```bash
-make pre_commit
-```
+    just lint
 
 To run unit tests:
 
-```bash
-make test
-```
+    just test
 
-To build the wheel:
+To view code coverage:
 
-```bash
-make wheel
-```
+    just coverage
 
-To view code coverage metrics:
+To build the package:
 
-```bash
-make coverage
-```
-
-To delete generated files:
-
-```bash
-make clean
-```
+    uv build
 
 ## Contributing
 

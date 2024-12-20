@@ -1,6 +1,5 @@
 # Copyright 2022 Block, Inc.
 """Test command-line interface."""
-# pylint: disable=W0621
 
 import argparse
 from typing import Generator

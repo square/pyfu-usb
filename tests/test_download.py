@@ -1,6 +1,5 @@
 # Copyright 2022 Block, Inc.
 """Test download."""
-# pylint: disable=R0913,W0613,W0621
 
 import math
 import pathlib
@@ -26,7 +25,7 @@ def binary_file(binary_file_size: int, tmp_path: pathlib.Path) -> str:
     """Fake binary file."""
     bin_file = tmp_path / "test.bin"
     with open(bin_file, "wb") as handle:
-        handle.write(binary_file_size * b"\xBB")
+        handle.write(binary_file_size * b"\xbb")
     return str(bin_file)
 
 

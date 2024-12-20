@@ -1,17 +1,74 @@
-[tool.black]
+[project]
+name = "pyfu-usb"
+version = "2.0.1"
+requires-python = ">=3.8"
+authors = [{name = "Block, Inc."}]
+description = "Python USB firmware update library."
+keywords = ["dfu-util", "pydfu"]
+readme = "README.md"
+readme-content-type = "text/markdown"
+package-data = {pyfu_usb = ["py.typed"]}
+license = {text = "MIT"}
+dependencies = [
+    "pyusb>=1.0.2",
+    "rich>=12.2",
+]
+
+[project.scripts]
+pyfu-usb = "pyfu_usb.__main__:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+managed = true
+dev-dependencies = [
+    "coverage",
+    "mypy",
+    "pre-commit",
+    "pytest",
+    "ruff",
+]
+
+[tool.ruff]
 line-length = 80
+indent-width = 4
+exclude = [
+	".coverage",
+    ".eggs",
+    ".git",
+	".mypy_cache",
+	".pytest_cache",
+	".ruff_cache",
+	".venv",
+    ".vscode",
+	"build",
+	"dist",
+	"htmlcov",
+	"venv",
+]
+
+[tool.ruff.lint]
+select = [
+    # pycodestyle
+    "E",
+    # pyflakes
+    "F",
+    # flake8-bugbear
+    "B",
+    # isort
+    "I",
+    # pylint
+    "PL"
+]
+ignore = [
+    # pylint: magic-value-comparison
+    "PLR2004",
+    # pylint: too-many-arguments
+    "PLR0913"
+]
 
 [tool.mypy]
 strict = true
 ignore_missing_imports = true
-
-[tool.pylint.MASTER]
-disable = "W0511,R0917,C0209"
-
-[tool.pylint.FORMAT]
-max-line-length = 80
-
-[tool.isort]
-# make it compatible with black
-profile = "black"
-line_length = 80

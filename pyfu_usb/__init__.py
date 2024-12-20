@@ -9,8 +9,7 @@
 """
 
 import logging
-import os
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 import usb
 from rich.progress import Progress, TaskID
@@ -55,7 +54,7 @@ def _get_dfu_devices(
         List of USB devices which are currently in DFU mode.
     """
 
-    class FilterDFU:  # pylint: disable=too-few-public-methods
+    class FilterDFU:
         """Identify devices which are in DFU mode."""
 
         def __call__(self, device: usb.core.Device) -> bool:
