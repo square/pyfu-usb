@@ -1,6 +1,6 @@
 [project]
 name = "pyfu-usb"
-version = "2.0.1"
+version = "2.0.2"
 requires-python = ">=3.8"
 authors = [{name = "Block, Inc."}]
 description = "Python USB firmware update library."
