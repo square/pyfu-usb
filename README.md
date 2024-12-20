@@ -16,7 +16,7 @@ The code in this package originates from `pydfu.py` and the _OpenMV_ license agr
 
 - Colored logs and progress bar with `rich`
 - Using `logging` instead of `print` for output messages
-- Consistent style with `black` and linting with `pylint`
+- Consistent style and linting with `ruff`
 
 ## Dependencies
 
@@ -44,9 +44,7 @@ Use the `--device` argument to specify the `vid:pid` of the device in hex if mul
 
 ## Developer Guide
 
-This project uses [`uv`](https://docs.astral.sh/uv/) for Python tooling. It also
-uses [`just`](https://github.com/casey/just) to simplify running common project
-specific commands.
+This project uses [`uv`](https://docs.astral.sh/uv/) for Python tooling. It also uses [`just`](https://github.com/casey/just) to simplify running project specific specific commands.
 
 To install pre-commit hooks (e.g. style, linting):
 
@@ -56,15 +54,15 @@ To run pre-commit hooks:
 
     just lint
 
-To run unit tests with code coverage:
+To run unit tests:
 
     just test
 
-To view code coverage metrics:
+To view code coverage:
 
     just coverage
 
-To build the wheel:
+To build the package:
 
     uv build
 

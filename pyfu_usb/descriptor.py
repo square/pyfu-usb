@@ -14,7 +14,6 @@ _DFU_DESCRIPTOR_LEN = 9
 _DFU_DESCRIPTOR_ID = 0x21
 
 
-# pylint: disable=invalid-name
 @dataclasses.dataclass
 class DfuDescriptor:
     """DFU descriptor."""
@@ -65,7 +64,6 @@ def get_dfu_descriptor(dev: usb.core.Device) -> Optional[DfuDescriptor]:
     return None
 
 
-# pylint: disable=too-many-locals
 def get_memory_layout(
     device: usb.core.Device,
     interface: int,

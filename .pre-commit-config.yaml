@@ -9,28 +9,21 @@ repos:
       - id: trailing-whitespace
   - repo: local
     hooks:
-      - id: black
-        name: black
-        entry: uv run black pyfu_usb/ tests/
-        language: system
-        args: ["--check"]
-        pass_filenames: false
-        always_run: true
       - id: mypy
-        name: mypy
+        name: check types
         entry: uv run mypy pyfu_usb/ tests/
         language: system
         pass_filenames: false
         always_run: true
-      - id: pylint
-        name: pylint
-        entry: uv run pylint pyfu_usb/ tests/
+      - id: ruff_format
+        name: check style
+        entry: uv run ruff format --check
         language: system
         pass_filenames: false
         always_run: true
-      - id: isort
-        name: isort
-        entry: uv run isort pyfu_usb/ tests/
+      - id: ruff_check
+        name: lint
+        entry: uv run ruff check
         language: system
         pass_filenames: false
         always_run: true

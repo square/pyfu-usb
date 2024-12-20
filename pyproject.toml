@@ -24,28 +24,31 @@ build-backend = "hatchling.build"
 [tool.uv]
 managed = true
 dev-dependencies = [
-    "black",
     "coverage",
     "mypy",
     "pre-commit",
-    "pylint",
     "pytest",
+    "ruff",
 ]
 
-[tool.black]
+[tool.ruff]
 line-length = 80
+indent-width = 4
+exclude = [
+	".coverage",
+    ".eggs",
+    ".git",
+	".mypy_cache",
+	".pytest_cache",
+	".ruff_cache",
+	".venv",
+    ".vscode",
+	"build",
+	"dist",
+	"htmlcov",
+	"venv",
+]
 
 [tool.mypy]
 strict = true
 ignore_missing_imports = true
-
-[tool.pylint.MASTER]
-disable = "W0511,R0917,C0209"
-
-[tool.pylint.FORMAT]
-max-line-length = 80
-
-[tool.isort]
-# make it compatible with black
-profile = "black"
-line_length = 80
