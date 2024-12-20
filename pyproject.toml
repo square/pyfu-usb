@@ -35,18 +35,18 @@ dev-dependencies = [
 line-length = 80
 indent-width = 4
 exclude = [
-	".coverage",
+    ".coverage",
     ".eggs",
     ".git",
-	".mypy_cache",
-	".pytest_cache",
-	".ruff_cache",
-	".venv",
+    ".mypy_cache",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".venv",
     ".vscode",
-	"build",
-	"dist",
-	"htmlcov",
-	"venv",
+    "build",
+    "dist",
+    "htmlcov",
+    "venv",
 ]
 
 [tool.ruff.lint]
