@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: astral-sh/setup-uv@v3
       - run: uv build -p ${{ matrix.python-version }}
-      - run: uv run   -p ${{ matrix.python-version}} mypy pyfu_usb/ tests/
-      - run: uv run   -p ${{ matrix.python-version}} ruff format --check
-      - run: uv run   -p ${{ matrix.python-version}} ruff check
-      - run: uv run   -p ${{ matrix.python-version}} pytest tests/
+      - run: uv run   -p ${{ matrix.python-version }} mypy pyfu_usb/ tests/
+      - run: uv run   -p ${{ matrix.python-version }} ruff format --check
+      - run: uv run   -p ${{ matrix.python-version }} ruff check
+      - run: uv run   -p ${{ matrix.python-version }} pytest tests/
