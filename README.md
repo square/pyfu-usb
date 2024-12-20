@@ -26,75 +26,47 @@ Even though this package may appear pure Python, by relying on `pyusb` we rely o
 
 Install with `pip`:
 
-```bash
-pip install pyfu-usb
-```
+    pip install pyfu-usb
 
 List connected DFU devices:
 
-```bash
-pyfu-usb --list
-```
+    pyfu-usb --list
 
 Download a file to a DfuSe capable device, specifying a start address in hex:
 
-```bash
-pyfu-usb --download <filename> -a <start_address>
-```
+    pyfu-usb --download <filename> -a <start_address>
 
 Download a file to a DFU capable device:
 
-```bash
-pyfu-usb --download <filename>
-```
+    pyfu-usb --download <filename>
 
 Use the `--device` argument to specify the `vid:pid` of the device in hex if multiple are connected. See the [examples](examples/) directory for more detailed examples.
 
 ## Developer Guide
 
-The `Makefile` contains workflow helpers for the development environment.
+This project uses [`uv`](https://docs.astral.sh/uv/) for Python tooling. It also
+uses [`just`](https://github.com/casey/just) to simplify running common project
+specific commands.
 
-To setup the virtual environment:
+To install pre-commit hooks (e.g. style, linting):
 
-```bash
-make setup
-```
+    just setup
 
-To activate the virtual environment:
+To run pre-commit hooks:
 
-```bash
-source .venv/bin/activate
-```
+    just lint
 
-To run pre-commit hooks (style, linting):
+To run unit tests with code coverage:
 
-```bash
-make pre_commit
-```
-
-To run unit tests:
-
-```bash
-make test
-```
-
-To build the wheel:
-
-```bash
-make wheel
-```
+    just test
 
 To view code coverage metrics:
 
-```bash
-make coverage
-```
+    just coverage
 
-To delete generated files:
+To build the wheel:
 
-```bash
-make clean
-```
+    uv build
 
 ## Contributing
 

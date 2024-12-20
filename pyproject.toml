@@ -1,3 +1,37 @@
+[project]
+name = "pyfu-usb"
+version = "2.0.1"
+requires-python = ">=3.8"
+authors = [{name = "Block, Inc."}]
+description = "Python USB firmware update library."
+keywords = ["dfu-util", "pydfu"]
+readme = "README.md"
+readme-content-type = "text/markdown"
+package-data = {pyfu_usb = ["py.typed"]}
+license = {text = "MIT"}
+dependencies = [
+    "pyusb>=1.0.2",
+    "rich>=12.2",
+]
+
+[project.scripts]
+pyfu-usb = "pyfu_usb.__main__:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+managed = true
+dev-dependencies = [
+    "black",
+    "coverage",
+    "mypy==0.942",
+    "pre-commit",
+    "pylint",
+    "pytest",
+]
+
 [tool.black]
 line-length = 80
 
