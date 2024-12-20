@@ -26,7 +26,7 @@ managed = true
 dev-dependencies = [
     "black",
     "coverage",
-    "mypy==0.942",
+    "mypy",
     "pre-commit",
     "pylint",
     "pytest",
