@@ -49,6 +49,26 @@ exclude = [
 	"venv",
 ]
 
+[tool.ruff.lint]
+select = [
+    # pycodestyle
+    "E",
+    # pyflakes
+    "F",
+    # flake8-bugbear
+    "B",
+    # isort
+    "I",
+    # pylint
+    "PL"
+]
+ignore = [
+    # pylint: magic-value-comparison
+    "PLR2004",
+    # pylint: too-many-arguments
+    "PLR0913"
+]
+
 [tool.mypy]
 strict = true
 ignore_missing_imports = true
