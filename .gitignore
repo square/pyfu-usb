@@ -1,10 +1,13 @@
-*.egg-info/
-*.pyc
-*.swp
-.coverage
-.pytest_cache/
-.venv/
-dist/
+# Python-generated files
+__pycache__/
+*.py[oc]
 build/
-**/__pycache__/
-**/target/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Code coverage
+.coverage

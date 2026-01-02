@@ -14,6 +14,15 @@ dependencies = [
     "rich>=12.2",
 ]
 
+[dependency-groups]
+dev = [
+    "coverage",
+    "pre-commit",
+    "pytest",
+    "ruff",
+    "ty",
+]
+
 [project.scripts]
 pyfu-usb = "pyfu_usb.__main__:main"
 
@@ -23,30 +32,14 @@ build-backend = "hatchling.build"
 
 [tool.uv]
 managed = true
-dev-dependencies = [
-    "coverage",
-    "mypy",
-    "pre-commit",
-    "pytest",
-    "ruff",
-]
 
 [tool.ruff]
 line-length = 80
 indent-width = 4
-exclude = [
+extend-exclude = [
     ".coverage",
-    ".eggs",
-    ".git",
-    ".mypy_cache",
     ".pytest_cache",
-    ".ruff_cache",
     ".venv",
-    ".vscode",
-    "build",
-    "dist",
-    "htmlcov",
-    "venv",
 ]
 
 [tool.ruff.lint]
@@ -68,7 +61,3 @@ ignore = [
     # pylint: too-many-arguments
     "PLR0913"
 ]
-
-[tool.mypy]
-strict = true
-ignore_missing_imports = true
