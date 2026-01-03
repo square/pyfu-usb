@@ -14,10 +14,10 @@ jobs:
         os: [ ubuntu-latest, macos-latest ]
         python-version: [ 3.8, 3.9, 3.11, 3.12 ]
     steps:
-      - uses: actions/checkout@v2
-      - uses: astral-sh/setup-uv@v3
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v7
       - run: uv build -p ${{ matrix.python-version }}
-      - run: uv run   -p ${{ matrix.python-version }} mypy pyfu_usb/ tests/
+      - run: uv run   -p ${{ matrix.python-version }} ty check
       - run: uv run   -p ${{ matrix.python-version }} ruff format --check
       - run: uv run   -p ${{ matrix.python-version }} ruff check
       - run: uv run   -p ${{ matrix.python-version }} pytest tests/

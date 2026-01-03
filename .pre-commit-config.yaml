@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.2.0
+    rev: v6.0.0
     hooks:
       - id: check-merge-conflict
       - id: check-shebang-scripts-are-executable
@@ -9,19 +9,19 @@ repos:
       - id: trailing-whitespace
   - repo: local
     hooks:
-      - id: mypy
+      - id: types
         name: check types
-        entry: uv run mypy pyfu_usb/ tests/
+        entry: uv run ty check
         language: system
         pass_filenames: false
         always_run: true
-      - id: ruff_format
+      - id: format
         name: check style
         entry: uv run ruff format --check
         language: system
         pass_filenames: false
         always_run: true
-      - id: ruff_check
+      - id: lint
         name: lint
         entry: uv run ruff check
         language: system
